@@ -18,14 +18,14 @@ class BinarySearchTree {
   }
 
   add(data) {
-    if(!this.rootNode) {
+    if(this.isEmpty(this.rootNode)) {
       this.rootNode = new Node(data);
       this.currentNode = this.rootNode;
       return;
     }
 
     if(data > this.currentNode.data) {
-      if(!this.currentNode.right) {
+      if(this.isEmpty(this.currentNode.right)) {
         this.currentNode.right = new Node(data);
         this.currentNode = this.rootNode;
         return;
@@ -34,7 +34,7 @@ class BinarySearchTree {
         this.add(data);
       }
     } else {
-      if(!this.currentNode.left) {
+      if(this.isEmpty(this.currentNode.left)) {
         this.currentNode.left = new Node(data);
         this.currentNode = this.rootNode;
         return;
@@ -50,7 +50,7 @@ class BinarySearchTree {
   }
 
   find(data) {
-    if(!this.rootNode) {
+    if(this.isEmpty(this.rootNode)) {
       return null;
     }
 
@@ -61,7 +61,7 @@ class BinarySearchTree {
       this.currentNode = this.rootNode;
     } else {
       if(data > this.currentNode.data) {
-        if(!this.currentNode.right) {
+        if(this.isEmpty(this.currentNode.right)) {
           this.currentNode = this.rootNode;
           result = null;
         } else {
@@ -69,7 +69,7 @@ class BinarySearchTree {
           result = this.find(data);
         }
       } else {
-        if(!this.currentNode.left) {
+        if(this.isEmpty(this.currentNode.left)) {
           this.currentNode = this.rootNode;
           result = null;
         } else {
@@ -83,44 +83,103 @@ class BinarySearchTree {
   }
 
   remove(data) {
-    throw new NotImplementedError('Not implemented');
-    // remove line with error and write your code here
+    if(!this.rootNode) return;
+
+    let nodeToDelete = this.find(data);
+
+    if(!nodeToDelete) return;
+    
+    if(this.isEmpty(nodeToDelete.left) && this.isEmpty(nodeToDelete.right)) {
+      this.deleteNode(nodeToDelete);
+      return;
+    } 
+    
+    let replacementNode;
+
+    if(this.isEmpty(nodeToDelete.left)) {
+      replacementNode = nodeToDelete;
+      nodeToDelete = nodeToDelete.right;
+
+      replacementNode.data = replacementNode.right.data;
+      replacementNode.left = replacementNode.right.left;
+      replacementNode.right = replacementNode.right.right;
+
+      this.deleteNode(nodeToDelete);
+    } else if(this.isEmpty(nodeToDelete.right)) {
+      replacementNode = nodeToDelete;
+      nodeToDelete = nodeToDelete.left;
+
+      replacementNode.data = replacementNode.left.data;
+      replacementNode.left = replacementNode.left.left;
+      replacementNode.right = replacementNode.left.right;
+
+      this.deleteNode(nodeToDelete);
+    } else {
+      replacementNode = nodeToDelete;
+
+      this.currentNode = nodeToDelete.left;
+      let valueToReplace = this.max();
+
+      this.currentNode = nodeToDelete.left;
+      nodeToDelete = this.find(valueToReplace);
+
+      this.currentNode = this.rootNode;
+
+      replacementNode.data = nodeToDelete.data;
+
+      if(!this.isEmpty(nodeToDelete.left)) {
+        nodeToDelete.data = nodeToDelete.left.data;
+        nodeToDelete.left = nodeToDelete.left.left;
+        nodeToDelete.right = nodeToDelete.left.right;
+      } else {
+        this.deleteNode(nodeToDelete);
+      }
+
+    }
   }
 
   min() {
-    if(!this.rootNode) {
+    if(this.isEmpty(this.rootNode)) {
       return null;
     }
 
-    let minNode;
+    let result;
 
-    if(!this.currentNode.left) {
-      minNode = this.currentNode;
+    if(this.isEmpty(this.currentNode.left)) {
+      result = this.currentNode.data;
       this.currentNode = this.rootNode;
     } else {
       this.currentNode = this.currentNode.left;
-      minNode = this.min();
+      result = this.min();
     }
 
-    return minNode;
+    return result;
   }
 
   max() {
-    if(!this.rootNode) {
+    if(this.isEmpty(this.rootNode)) {
       return null;
     }
 
-    let maxNode;
+    let result;
 
-    if(!this.currentNode.right) {
-      maxNode = this.currentNode;
+    if(this.isEmpty(this.currentNode.right)) {
+      result = this.currentNode.data;
       this.currentNode = this.rootNode;
     } else {
       this.currentNode = this.currentNode.right;
-      maxNode = this.max();
+      result = this.max();
     }
 
-    return maxNode;
+    return result;
+  }
+
+  isEmpty(node) {
+    return node == null || node.data == undefined;
+  }
+
+  deleteNode(node) {
+    Object.keys(node).forEach(key => delete node[key]);
   }
 }
 
